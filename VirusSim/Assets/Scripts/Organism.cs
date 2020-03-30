@@ -13,10 +13,11 @@ public class Organism : MonoBehaviour
     protected GameObject dest;
     protected int target;
 
-    public int state; //0: healthy, 1: sick, 2: cured, -1: dead
-    public int strength;
-    public int health;
-    public int infectivity;
+    public List<GameObject> interactedOrgs;
+    public int state;       //0: healthy, 1: sick, 2: cured, -1: dead
+    public int strength;    //50-100
+    public int health;      //50-100
+    public int infectivity; //1-10
 
     private MeshRenderer mesh;
     public Material healthyMat;
@@ -32,6 +33,8 @@ public class Organism : MonoBehaviour
 
         nav = GetComponent<NavMeshAgent>();
         mesh = GetComponent<MeshRenderer>();
+
+        interactedOrgs = new List<GameObject>();
     }
 
     // Update is called once per frame
@@ -48,6 +51,10 @@ public class Organism : MonoBehaviour
         home = h;
         location = l;
         state = s;
+
+        strength = Random.Range(0, 100);
+        health = Random.Range(0, 100);
+        infectivity = Random.Range(0, 100);
     }
 
     public void changeState(int s)
@@ -81,6 +88,11 @@ public class Organism : MonoBehaviour
         }
     }
 
+    void getInfected()
+    {
+        state = 1;
+    }
+
     void commuteManager()
     {
         if (target == 0) dest = home;
@@ -94,12 +106,15 @@ public class Organism : MonoBehaviour
             foreach (ContactPoint contact in collision.contacts)
             {
                 Debug.DrawRay(contact.point, contact.normal, Color.black, 1);
-                Debug.Log("Yes");
             }
 
             GameObject collidedOrg = collision.gameObject;
             Organism collidedScript = collidedOrg.GetComponent<Organism>();
-            if (collidedScript.state == 1) state = 1;
+
+            if (collidedScript.state == 1)
+            {
+                getInfected();
+            }
         }
     }
 }
